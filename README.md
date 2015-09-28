@@ -9,7 +9,7 @@ Before you being building your first mobile app, you need to make sure you have 
 3. Download the demo. You can do so by clicking the "Download" button on the righthand side of this page.
 4. Request a free Xamarin subscription. Xamarin is free for students! All you have to do is visit [xamarin.com/student#apply](xamarin.com/student#apply) to apply.
 
-### Walkthrough
+### Walkthrough #1
 Being in college is tough. When you aren't working on a group project you waited *way* too long to get started on, you are probably cramming for a test or skipping class. Naturally, it's easy to lose track of your assignments. Today, you are going to build your first mobile app for iOS, Android, and Windows Phone - a simple todo app - to solve your problem.
 
 1. Open the solution (inside a folder called `Todo - Start Here`) using either Xamarin Studio or Visual Studio.
@@ -78,3 +78,78 @@ MainPage = new NavigationPage (new TodoPage ()) {
 ```
 
 22. Compile and run your app. You should see a beautiful blue navigation bar with white text that says "Todos". Great, now that the framework is in place to handle navigation, let's create a new page for viewing and editing existing todos. Right-click the `Views` folder. Click Add->New File. Select the `Forms` category on the left-hand side. Create a new `Forms ContentPage XAML` and name it "TodoDetailPage".
+23. In `TodoDetailPage.xaml.xs` update the constructor to have the following signature `public TodoDetailPage (TodoItem item)`. Why? When a user selects a cell, we want to pass our selected item along to the page. While we are at it, set `Title = item.Name`.
+24. We want an easy way to navigate after a cell is tapped. Luckily, Xamarin.Forms list views expose an event called `ItemSelected` for this purpose. First, we are going to want to add a name to our list view by adding the `x:Name` property to `TodoPage.xaml` as follows: 
+
+```
+<ListView x:Name="todoListView"
+	ItemsSource="{Binding Todos}">
+</ListView>
+```
+25. Hop back over to `TodoPage.xaml.cs` and you should be able to add a lambda expression (fancy name for an anonymous method in C#) to the constructor that looks something like this:
+
+```
+todoListView.ItemSelected += (sender, e) => {
+	// Navigation logic here
+};
+```
+
+26. To navigate, all we have to do is use the `Navigation.PushAsync`method, coupled with an instance of the `TodoDetailPage`. When done, your `TodoPage.xaml.cs` should look something like this:
+
+```
+using System;
+using System.Collections.Generic;
+
+using Xamarin.Forms;
+
+namespace Todo
+{
+	public partial class TodoPage : ContentPage
+	{
+		public TodoPage ()
+		{
+			BindingContext = new TodoViewModel ();
+			Title = "Todos";
+
+			InitializeComponent ();
+
+			todoListView.ItemSelected += (sender, e) => {
+				if (todoListView.SelectedItem == null)
+					return;
+
+				Navigation.PushAsync (new TodoDetailPage (todoListView.SelectedItem as TodoItem));
+
+				todoListView.SelectedItem = null;
+			};
+		}
+	}
+}
+```
+
+26. Compile and run! Tap a cell in the list view... and boom! You should navigate to a new page with the title of the item that you just selected. Awesome! Now it's time to update our detail view so people can edit and view their todos in more detail.
+27. Jump back to `TodoDetailPage.xaml`. Let's add some visual elements. First, let's create a `StackLayout`, which is a managed layout. All we will have to do is define the order of controls, and the `StackLayout` will handle the rest for us.
+28. Inside the `StackLayout`, let's add a few labels, an `Entry` (for editing the title), an `Editor` (for editing the description), and a `Switch` (for toggling the state of task). At this point, your XAML will look something like this:
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="Todo.TodoDetailPage">
+	<ContentPage.Content>
+		<StackLayout Padding="15, 20, 15, 20">
+			<Label Text="Title" />
+			<Entry Text="" />
+			<Label Text="Description" />
+			<Editor Text="" />
+			<Label Text="Done?" />
+			<Switch IsToggled="false" />
+		</StackLayout>
+	</ContentPage.Content>
+</ContentPage>
+```
+
+29. Compile and run the app. Great! We have a nice structure, now let's actually hook this up to our selected `TodoItem` so we can actually make changes. Remember, to update our data, we need to use data binding. Let's add a Selecte
+
+### Walkthrough #2
+Being in college is tough. When you aren't working on a group project you waited *way* too long to get started on, you are probably cramming for a test or skipping class. Naturally, it's easy to lose track of your assignments. Today, you are going to build your first mobile app for iOS, Android, and Windows Phone - a simple todo app - to solve your problem.
+
+This demo is slightly easier than the other demo, as you are only dealing with the XAML portion, and not the whole MVVM architecture. If you feel like you can handle it, go for Walkthrough #1!
+
