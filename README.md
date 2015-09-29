@@ -12,6 +12,10 @@ Before you being building your first mobile app, you need to make sure you have 
 ### Walkthrough #1a - Building a Todo App
 Being in college is tough. When you aren't working on a group project you waited *way* too long to get started on, you are probably cramming for a test or skipping class. Naturally, it's easy to lose track of your assignments. Today, you are going to build your first mobile app for iOS, Android, and Windows Phone - a simple todo app - to solve your problem.
 
+---
+
+#### Project Setup, Main Page, and Model
+
 1. Open the solution (inside a folder called `Todo - Start Here`) using either Xamarin Studio or Visual Studio.
 2. There are four projects inside the solution: `Todo`, `Todo.iOS`, `Todo.Droid`, and `Todo.WinPhone`. Remember, Xamarin.Forms allows you to build native UIs for iOS, Android, and Windows Phone from a single, shared codebase. The `Todo` project is a library called a PCL - or Portable Class Library. All the code we write here will be shared between iOS, Android, and Windows Phone.
 3. Expand the `Todo.iOS`, `Todo.Droid`, and `Todo.WinPhone` projects. We won't have to work with these today, but if you wanted to add functionality to your app that requires APIs that are platform-specific, you would make those changes here.
