@@ -40,19 +40,19 @@ Being in college is tough. When you aren't working on a group project you waited
 1. Time to add some data to our list view! Remember, a page's behavior should come from a view model, not the page itself? For every page, we should create a new view model that adds behavior to the visual elements on the page. Right-click the `View Models` folder. Click Add->New File. Select the `General` category on the left-hand side. Create a new `Empty Class` and name it "TodoViewModel". Inherent from `BaseViewModel`, which will just give us some default view model functionality for use in `TodoViewModel`.
 2. Before we configure our view model, we need to create a model to represent our todos. Right click the `Models` folder. Click Add->New File. Select the `General` category, and create a new `Empty Class` called "TodoItem".
 3. Think about what properties a todo item needs. It should have a name, description, and something to let us know if the todo was completed. Add three properties, one for name, description, and done.
-```
-public string Name { get; set; }
-public string Description { get; set; }
-public bool Done { get; set; }
-```
+
+		public string Name { get; set; }
+		public string Description { get; set; }
+		public bool Done { get; set; }
+
 4. Open back up `TodoViewModel.cs`. Our list view needs data to operate on; we can add this data by creating a list of todo items and connecting that to our list view. Add `using System.Collections.ObjectModel;` to the top of the file. This will allow us access to some extra classes that we will use for storing our data. Next, create a new `ObservableCollection<TodoItem>` property called `Todos`, which is basically just a List<T>, except with support for MVVM. 
 5. In the constructor for the view model, let's create some dummy data to populate our app on launch. You can do this several ways, but one easy way is:
-```
-Todos = new ObservableCollection<TodoItem> ();
-Todos.Add (new TodoItem { Name = "Reading assignment", Description = "Read chapters 29-34 and take notes." });
-Todos.Add (new TodoItem { Name = "Math homework", Description = "Complete problems 1-14 on worksheet." });
-Todos.Add (new TodoItem { Name = "Todo app", Description = "Build a todo app for my CS class" });
-```
+
+		Todos = new ObservableCollection<TodoItem> ();
+		Todos.Add (new TodoItem { Name = "Reading assignment", Description = "Read chapters 29-34 and take notes." });
+		Todos.Add (new TodoItem { Name = "Math homework", Description = "Complete problems 1-14 on worksheet." });
+		Todos.Add (new TodoItem { Name = "Todo app", Description = "Build a todo app for my CS class" });
+
 6. Remember how our view model is supposed to help out our view by supplying data and behavior? How do they share data? MVVM came up with a concept of data binding, which basically means that a view's property is "bound" to a property of our view model. Whenever the property changes (via view model), the view will update to reflect the changes. This is why we had to use an `ObservableCollection<T>`, rather than just a regular list. `ObservableCollection` is a special class made for data binding that will automatically alert our view that data has changed, and that the view needs to update. Now that we have bindings defined on the view model end, we need to update our view to handle this.
 7. Time to give the list view the data it needs! Jump back over to `TodoPage` and open up the codebehind (`TodoPage.xaml.cs`). In the constructor, add `BindingContext = new TodoViewModel ()`. Why? We need to let our page know the source of all the data bindings we will create. While we are at it, set the title of the page to "Todos" by adding the following line of code to the constructor: `Title = "Todos";`.
 8. In `TodoPage.xaml`, update the `ItemsSource` property to `"{Binding Todos}"`. This will mean that all the items for our list view will come from the `Todos` property of our binding context, which we just set to a new `TodoViewModel`. For clarity, this is what your XAML should look like right now.
@@ -66,21 +66,21 @@ Todos.Add (new TodoItem { Name = "Todo app", Description = "Build a todo app for
 		</ContentPage>
 		
 9. `ListViews` in Xamarin.Forms are made up of individual cells. Adding a cell is easy! There are many different types of cells, but what we will be using is called a `TextCell`. Also, remember how the list view is populated from the `Todos` binding, which is an `ObservableCollection<TodoItem>`? This means that each cell is representative of a single `TodoItem`. We should update our bindings to reflect that. When you are done, you should have something like this:
-```
-<?xml version="1.0" encoding="UTF-8"?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="Todo.TodoPage">
-	<ContentPage.Content>
-		<ListView x:Name="todoListView"
-			ItemsSource="{Binding Todos}">
-			<ListView.ItemTemplate>
-				<DataTemplate>
-					<TextCell Text="{Binding Name}" />
-				</DataTemplate>
-			</ListView.ItemTemplate>
-		</ListView>
-	</ContentPage.Content>
-</ContentPage>
-```
+
+		<?xml version="1.0" encoding="UTF-8"?>
+		<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="Todo.TodoPage">
+			<ContentPage.Content>
+				<ListView x:Name="todoListView"
+					ItemsSource="{Binding Todos}">
+					<ListView.ItemTemplate>
+						<DataTemplate>
+							<TextCell Text="{Binding Name}" />
+						</DataTemplate>
+					</ListView.ItemTemplate>
+				</ListView>
+			</ContentPage.Content>
+		</ContentPage>
+
 10. Compile and run your app. You should see your todo items in the list view!
 
 ---
@@ -89,64 +89,64 @@ Todos.Add (new TodoItem { Name = "Todo app", Description = "Build a todo app for
 
 1. Now it's time to take our todo app and make it a multi-page app. When a user taps on a todo item in the list, we want to open a new page that contains the item with the name, description, and if the task is done or not. This is called push-pop navigation, as a new page is pushed onto the screen, and then poped off. (Technically, it's pushing/popping off the navigation stack, but you get the point.)
 2. Hop back to `App.cs`. Let's update our `MainPage` property so that we can handle this type of navigation. This will also add a navigation bar, so we will style that a bit as well.
-```
-MainPage = new NavigationPage (new TodoPage ()) {
-  BarTextColor = Color.White,
-  BarBackgroundColor = Color.FromHex ("2C97DE")
-};
-```
+
+		MainPage = new NavigationPage (new TodoPage ()) {
+		  BarTextColor = Color.White,
+		  BarBackgroundColor = Color.FromHex ("2C97DE")
+		};
+
 3. Compile and run your app. You should see a beautiful blue navigation bar with white text that says "Todos". Great, now that the framework is in place to handle navigation, let's create a new page for viewing and editing existing todos. Right-click the `Views` folder. Click Add->New File. Select the `Forms` category on the left-hand side. Create a new `Forms ContentPage XAML` and name it "TodoDetailPage".
 4. In `TodoDetailPage.xaml.xs` update the constructor to have the following signature `public TodoDetailPage (TodoItem item)`. Why? When a user selects a cell, we want to pass our selected item along to the page.
 5. Remember how the binding context for `TodoPage` was a view model? It doesn't always have to be! In this case, we are binding to a single item, a `TodoItem`, so we can just set the `BindingContext = item` in the constructor of `TodoDetailPage`. We can use this binding in our actual page by adding a `Title` property to our `ContentPage` tag, and binding to the `TodoItem`'s name.
-```
-<?xml version="1.0" encoding="UTF-8"?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="Todo.TodoDetailPage"
-	Title="{Binding Name}">
-	<ContentPage.Content>
-	</ContentPage.Content>
-</ContentPage>
-```
+
+		<?xml version="1.0" encoding="UTF-8"?>
+		<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="Todo.TodoDetailPage"
+			Title="{Binding Name}">
+			<ContentPage.Content>
+			</ContentPage.Content>
+		</ContentPage>
+
 6. Next, we want an easy way to navigate after a cell is tapped. Luckily, Xamarin.Forms list views expose an event called `ItemSelected` for this purpose. First, we are going to want to add a name to our list view by adding the `x:Name` property to `TodoPage.xaml` as follows: 
-```
-<ListView x:Name="todoListView"
-	ItemsSource="{Binding Todos}">
-</ListView>
-```
+
+		<ListView x:Name="todoListView"
+			ItemsSource="{Binding Todos}">
+		</ListView>
+
 7. Hop back over to `TodoPage.xaml.cs` and you should be able to add a lambda expression (fancy name for an anonymous method in C#) to the constructor that looks something like this:
-```
-todoListView.ItemSelected += (sender, e) => {
-	// Navigation logic here
-};
-```
+
+		todoListView.ItemSelected += (sender, e) => {
+			// Navigation logic here
+		};
+
 8. To navigate, all we have to do is use the `Navigation.PushAsync`method, coupled with an instance of the `TodoDetailPage`. When done, your `TodoPage.xaml.cs` should look something like this:
-```
-using System;
-using System.Collections.Generic;
 
-using Xamarin.Forms;
+		using System;
+		using System.Collections.Generic;
 
-namespace Todo
-{
-	public partial class TodoPage : ContentPage
-	{
-		public TodoPage ()
+		using Xamarin.Forms;
+
+		namespace Todo
 		{
-			BindingContext = new TodoViewModel ();
+			public partial class TodoPage : ContentPage
+			{
+				public TodoPage ()
+				{
+					BindingContext = new TodoViewModel ();
 
-			InitializeComponent ();
+					InitializeComponent ();
 
-			todoListView.ItemSelected += (sender, e) => {
-				if (todoListView.SelectedItem == null)
-					return;
+					todoListView.ItemSelected += (sender, e) => {
+						if (todoListView.SelectedItem == null)
+							return;
 
-				Navigation.PushAsync (new TodoDetailPage (todoListView.SelectedItem as TodoItem));
+						Navigation.PushAsync (new TodoDetailPage (todoListView.SelectedItem as TodoItem));
 
-				todoListView.SelectedItem = null;
-			};
+						todoListView.SelectedItem = null;
+					};
+				}
+			}
 		}
-	}
-}
-```
+
 9. Compile and run! Tap a cell in the list view... and boom! You should navigate to a new page with the title of the item that you just selected. Awesome! Now it's time to update our detail view so people can edit and view their todos in more detail.
 
 ---
@@ -155,71 +155,71 @@ namespace Todo
 
 1. Jump back to `TodoDetailPage.xaml`. Let's add some visual elements. First, let's create a `StackLayout`, which is a managed layout. All we will have to do is define the order of controls, and the `StackLayout` will handle the rest for us.
 2. Inside the `StackLayout`, let's add a few labels, two `Entry`s (for editing the title and description) and a `Switch` (for toggling the state of task). At this point, your XAML will look something like this:
-```
-<?xml version="1.0" encoding="UTF-8"?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="Todo.TodoDetailPage"
-	Title="{Binding Name}">
-	<ContentPage.Content>
-		<StackLayout Padding="15, 20, 15, 20">
-			<Label Text="Title" />
-			<Entry Text="{Binding Name}" />
-			<Label Text="Description" />
-			<Entry Text="{Binding Description}" />
-			<Label Text="Done?" />
-			<Switch IsToggled="{Binding Done}" />
-		</StackLayout>
-	</ContentPage.Content>
-</ContentPage>
-```
+
+		<?xml version="1.0" encoding="UTF-8"?>
+		<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="Todo.TodoDetailPage"
+			Title="{Binding Name}">
+			<ContentPage.Content>
+				<StackLayout Padding="15, 20, 15, 20">
+					<Label Text="Title" />
+					<Entry Text="{Binding Name}" />
+					<Label Text="Description" />
+					<Entry Text="{Binding Description}" />
+					<Label Text="Done?" />
+					<Switch IsToggled="{Binding Done}" />
+				</StackLayout>
+			</ContentPage.Content>
+		</ContentPage>
+
 3. Compile and run the app. Great! We have a nice structure, now let's actually hook this up to our selected `TodoItem` so we can actually make changes. Remember, to update our data, we need to use data binding. Because our `BindingContext` for `TodoDetailPage` is already set to the `TodoItem`, all we have to do is bind to specific properties of our `TodoItem`, like the name, description, and status. Give it a try yourself, but this is what `TodoDetailPage.xaml` should look like when you are done:
-```
-<?xml version="1.0" encoding="UTF-8"?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="Todo.TodoDetailPage"
-	Title="{Binding Name}">
-	<ContentPage.Content>
-		<StackLayout Padding="15, 20, 15, 20">
-			<Label Text="Title" />
-			<Entry Text="{Binding Name}" />
-			<Label Text="Description" />
-			<Entry Text="{Binding Description}" />
-			<Label Text="Task Completed" />
-			<Switch IsToggled="{Binding Done}" />
-		</StackLayout>
-	</ContentPage.Content>
-</ContentPage>
-```
+
+		<?xml version="1.0" encoding="UTF-8"?>
+		<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="Todo.TodoDetailPage"
+			Title="{Binding Name}">
+			<ContentPage.Content>
+				<StackLayout Padding="15, 20, 15, 20">
+					<Label Text="Title" />
+					<Entry Text="{Binding Name}" />
+					<Label Text="Description" />
+					<Entry Text="{Binding Description}" />
+					<Label Text="Task Completed" />
+					<Switch IsToggled="{Binding Done}" />
+				</StackLayout>
+			</ContentPage.Content>
+		</ContentPage>
+
 
 4. Compile and run the app again. Wow! Now we can make changes to the todo on the detail screen, and return to see our changes are still there. However, you may have noticed, if you update the title of the todo, it doesn't update on the list view. This is because nothing is notifying the list view that the `TodoItem` has changed. Fixing this is easy! All we have do is implement an interface called `INotifyPropertyChanged`, which will let our UI know about changes to the `TodoItem`. Copy the `TodoItem` implementation below back into your `TodoItem` class.
-```
-using System;
-using System.ComponentModel;
 
-namespace Todo
-{
-	public class TodoItem : INotifyPropertyChanged
-	{
-		private string name;
+		using System;
+		using System.ComponentModel;
 
-		public string Name 
-		{ 
-			get { return name; }
-			set { name = value; NotifyPropertyChanged ("Name"); }
-		}
-		public string Description { get; set; }
-		public bool Done { get; set; }
-
-		public event PropertyChangedEventHandler PropertyChanged;
-
-		private void NotifyPropertyChanged(String info)
+		namespace Todo
 		{
-			if (PropertyChanged != null)
+			public class TodoItem : INotifyPropertyChanged
 			{
-				PropertyChanged(this, new PropertyChangedEventArgs(info));
+				private string name;
+
+				public string Name 
+				{ 
+					get { return name; }
+					set { name = value; NotifyPropertyChanged ("Name"); }
+				}
+				public string Description { get; set; }
+				public bool Done { get; set; }
+
+				public event PropertyChangedEventHandler PropertyChanged;
+
+				private void NotifyPropertyChanged(String info)
+				{
+					if (PropertyChanged != null)
+					{
+						PropertyChanged(this, new PropertyChangedEventArgs(info));
+					}
+				}
 			}
 		}
-	}
-}
-```
+
 
 5. If you run the compile and app again, you should see that the title now updates when it is changed on the `TodoDetailPage`. 
 
@@ -228,20 +228,20 @@ namespace Todo
 #### Add functionality for creating items
 
 1. One last step: we are missing a page to add new items. One easy way to do this is to add an "Add" button to our navigation bar, which will add a new todo to our list view that we can edit. Hop back over to `TodoPage.xaml.cs`. We can access what Xamarin.Forms calls the toolbar by using the `ToolbarItems` property on our `TodoPage`, and adding a new `ToolbarItem`. Add the following code to the constructor of the `TodoPage` class:
-```
-ToolbarItems.Add (new ToolbarItem ("Add", null, async () => {
-	// This is where we define actions that will happen when the "Add" button is tapped.
-}));
-```
+
+		ToolbarItems.Add (new ToolbarItem ("Add", null, async () => {
+			// This is where we define actions that will happen when the "Add" button is tapped.
+		}));
+
 2. Now that we have a toolbar item, we need to make it actually do something! Let's add a new `TodoItem` to the list view. Remember how our list view uses the `ItemsSource` property, which references `BindingContext`of our page? Luckily for us, almost all the heavily lifting is done to do this. Because `ItemsSource` is binded to our `ObservableCollection<TodoItem>`, all updates to that collection will automatically update the UI. All we need to do then, is to add a new `TodoItem` to this collection. There are a few ways to acccomplish this, but this is the easiest:
-```
-ToolbarItems.Add (new ToolbarItem ("Add", null, async () => {
-	// Get a reference to our view model
-	var viewModel = BindingContext as TodoViewModel;
-	// Add our todo to the Todos collection
-	viewModel.Todos.Add (new TodoItem { Name = "New Todo", Description = "Edit Me", Done = false });
-}));
-```
+
+		ToolbarItems.Add (new ToolbarItem ("Add", null, async () => {
+			// Get a reference to our view model
+			var viewModel = BindingContext as TodoViewModel;
+			// Add our todo to the Todos collection
+			viewModel.Todos.Add (new TodoItem { Name = "New Todo", Description = "Edit Me", Done = false });
+		}));
+
 
 3. Compile and run the app, and you have a working todo application! You will now be able to keep track of your assignments using this simple app that you built for iOS, Android, and Windows Phone. :) If you are up to the challenge, jump to Walkthrough #2, and learn how to add a cloud backend to your application (so you can view your todos anywhere), using [Microsoft Azure App Service](https://azure.microsoft.com/en-us/services/app-service/).
 
