@@ -508,22 +508,17 @@ public override bool FinishedLaunching(UIApplication app, NSDictionary options)
 }
 ```
 
-4. Great, now we are all configured, and ready to start interacting with data from our Azure Mobile Service. Right-click the `Todo` project and select Add->New File. Select the `General` category from the left-hand side, followed by `Empty Class`. Name your empty class "MobileService". This will be the place where all of our Mobile Services logic resides. To be able to access all the APIs available with Mobile Services, add the following using statement to the top of the file `using Microsoft.WindowsAzure.MobileServices;`. Because we want our class to be statically available, make the class static by adding the word `static` immediately after the word `public` in both the class signature.
-5. Great! Everything in a mobile service revolves around a class called `MobileServiceClient`. This class handles all the complicated networking and behind-the-scenes logic for communicating with our backend, and gives us a nice, easy-to-use API. Let's initialize our `MobileServiceClient`. To do so, let's create a private field called "MobileService", and initialize it in our constructor. Remember that URL and application key from earlier? Well now is the time we are going to use them! To tell the `MobileServiceClient` class what Mobile Service to connect and authenticate with, let's pass in both the URL and the application key into the constructor of `MobileServiceClient`. It should look something like this:
+4. Great, now we are all configured, and ready to start interacting with data from our Azure Mobile Service. Right-click the `Todo` project and select Add->New File. Select the `General` category from the left-hand side, followed by `Empty Class`. Name your empty class "MobileService". This will be the place where all of our Mobile Services logic resides. To be able to access all the APIs available with Mobile Services, add the following using statement to the top of the file `using Microsoft.WindowsAzure.MobileServices;`.
+5. Great! Everything in a mobile service revolves around a class called `MobileServiceClient`. This class handles all the complicated networking and behind-the-scenes logic for communicating with our backend, and gives us a nice, easy-to-use API. Let's initialize our `MobileServiceClient`. To do so, let's create a private field called "client" Remember that URL and application key from earlier? Well now is the time we are going to use them! To tell the `MobileServiceClient` class what Mobile Service to connect and authenticate with, let's pass in both the URL and the application key into the constructor of `MobileServiceClient`. It should look something like this:
 ```
 using System;
 using Microsoft.WindowsAzure.MobileServices;
 
 namespace Todo
 {
-	public static class MobileService
+	public class MobileService
 	{
-		static MobileServiceClient client;
-
-		public MobileService ()
-		{
-			client = new MobileServiceClient ("MOBILE_SERVICE_URL", "APPLICATION_KEY");
-		}
+		static MobileServiceClient client = new MobileServiceClient ("MOBILE_SERVICE_URL", "APPLICATION_KEY");
 	}
 }
 ```
@@ -611,7 +606,7 @@ using Microsoft.WindowsAzure.MobileServices;
 
 namespace Todo
 {
-	public static class MobileService
+	public class MobileService
 	{
 		static MobileServiceClient client;
 
@@ -637,4 +632,39 @@ namespace Todo
 }
 ```
 
-13. 
+13. Now that we can fetch our data, we need to update our `TodoPage` to be populated by the Mobile Service data instead of our dummy data we had there before. Remember, the behavior for our pages should come from our view model (this includes the data to populate our pages), so we need to update `TodoViewModel`.
+14. Let's add a new method called `GetTodos` that will call the method we just created in our `MobileService` class and add the items to our `ObservableCollection<TodoItem>`. Remember, this collection is data-bound to our list view, so any changes to this collection will be reflected in the list view. :) Because we will have to use the "await" keyword for our `MobileService.GetTodos` method, we need to add the "async" modifier to our method (so we need to import `System.Threading.Tasks`). Once we call this method and get our todos, we need to loop through the collection returned by `MobileService.GetTodos` and add them to the `Todos` collection. When you put all the pieces together, you should have something like this:
+```
+async void GetTodos ()
+{
+	var todos = await MobileService.GetTodosAsync ();
+	foreach (var todo in todos) {
+		Todos.Add (todo);
+	}
+}
+```
+15. Finally, let's delete our "dummy data" from our constructor and call our new `GetTodos` method after we initialize the `Todos` property. Great, now our list view will be in sync with our Mobile Service!
+16. Now that we are successfully syncing with our list view, it's time to sync new items when they are added to our list view. In `TodoPage.xaml.cs`, we already have all the code in place to do this locally. All we need to do is add one line of code to sync to our Mobile Service! In the lambda expression created by `ToolbarItems.Add` (around line 25), add a call to `MobileService.SaveTodoAsync (todo);` after adding the todo to the view model for the page. That's it! With that in place, your code should look like this (in `TodoPage.xaml.cs`):
+```
+ToolbarItems.Add (new ToolbarItem ("Add", null, async () => {
+	var viewModel = BindingContext as TodoViewModel;
+	var todo = new TodoItem { Name = "New Todo", Description = "Edit Me", Done = false };
+	viewModel.Todos.Add (todo);
+
+	MobileService.SaveTodoAsync (todo);
+}));
+```
+
+17. Amazing! Now we are fetching todos and saving todos! What's left? Updating todos! Hop over to `TodoDetailPage.xaml.cs`. Making sure our items are up-to-date is very easy! Each page in Xamarin.Forms has it's own "lifecycle" events, like when the page comes onto the screen and when it disappears. We can hook into these to update our todo whenever a user navigates away from the `TodoDetailPage`. Override the `OnDisappearing` method, and add a call to `MobileService.SaveTodoAsync` after `base.OnDisappearing`. Remember, our `BindingContext` for this page is just the `TodoItem` that is being edited. So as the lone argument for `MobileService.SaveTodoAsync`, we can just pass in our `BindingContext`, and our items will be updated. When you're all done, it should look like this:
+```
+protected override void OnDisappearing ()
+{
+	base.OnDisappearing ();
+
+	MobileService.SaveTodoAsync (BindingContext as TodoItem);
+}
+```
+
+18. Run and compile your app (if you have issues, see the note below)! You have successfully added a cloud backend to your application! Add some items and edit them. Then compile and run your app for another platform, and you should see the items you created. You may even want to pull up the `Data` tab of your Azure Mobile Service to see the todo data in your database yourself! Azure Mobile Services makes it extremely easy to add a backend to your app. :) Now you can keep track of your todos across all of your devices, and hopefully won't lose track of any more assignments. ;)
+
+NOTE: If you get an error saying that an assembly with namespace `NAMESPACE` has already been imported, this is due to a temporary bug in Azure Mobile Services. All you have to do to fix this is go to `Todo.iOS`->`References`->`From Packages`, and delete the namespaces that are repeated. In my case, it was `System.IO`, `System.Runtime`, and `System.Threading.Tasks`. You can delete these by right-clicking them and selecting "Delete".
