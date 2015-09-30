@@ -10,6 +10,7 @@ namespace Todo
 		public TodoPage ()
 		{
 			BindingContext = new TodoViewModel ();
+			Title = "Todos";
 
 			InitializeComponent ();
 
@@ -17,19 +18,18 @@ namespace Todo
 				if (todoListView.SelectedItem == null)
 					return;
 
-				Navigation.PushAsync (new TodoDetailPage (todoListView.SelectedItem as TodoItem));
+				var todoItem = todoListView.SelectedItem as TodoItem;
+				var detailPage = new TodoDetailPage (todoItem);
+
+				Navigation.PushAsync (detailPage);
 
 				todoListView.SelectedItem = null;
 			};
 
 			ToolbarItems.Add (new ToolbarItem ("Add", null, async () => {
 				var viewModel = BindingContext as TodoViewModel;
-				var todo = new TodoItem { Name = "New Todo", Description = "Edit Me", Done = false };
-				viewModel.Todos.Add (todo);
-
-				MobileService.SaveTodoAsync (todo);
+				viewModel.Todos.Add (new TodoItem { Name = "New Todo", Description = "Edit Me", Done = false });
 			}));
 		}
 	}
 }
-
