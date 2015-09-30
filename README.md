@@ -473,3 +473,39 @@ Being in college is tough. When you aren't working on a group project you waited
 
 ### Walkthrough #2 - Adding a Cloud Backend To The Todo App
 It's 2015. Your app needs a cloud! Lucky for you, it's very easy to add "some cloud" to your todo app. Essentially, what we will be doing is adding a "backend" to our application. This will handle all the data storage behind the scenes and deliver the data whenever your "frontend" (the mobile app) requests it. Why is this awesome? Well, it means that you will be able to access your data from whatever device you pick! If you add todos on an Android or iOS device, you will be able view those todos on a Windows Phone device.
+
+----
+Mobile Services Setup
+* How to get an account (malte)
+
+----
+Configuring Your Backend
+
+1. Go to [Azure Portal](manage.windowsazure.com). Today, we are going to be creating what is called a "Mobile Service", which is just a fancy name for a backend service for your app hosted by Azure.
+2. Click New->Compute->Mobile Service->Create. Give your app a descriptive URL (Note: These URLs must be unique.), such as "todoappwalkthrough". For Database, select "Create a new SQL database instance". Leave the rest of the features alone. Click the "Next" arrow.
+3. Leave the default Name for the `Database settings` page and change the "Server" value to "New SQL database server". Enter a login name and password that you will remember later on. Click the "Next" arrow to create your mobile service. 
+4. Give Azure a second to create your Mobile Service! Azure abstracts lots of complexity for us and makes it really easy to add a backend to our apps, so it's worth the wait.
+5. When your application is created, click on the Mobile Service you just created, and then click the `Data` tab. At the bottom of your web browser, you should see a "Create" button. For "Table Name", enter "TodoItem". Leave the rest of the features with the default settings, and click the checkmark to create your table. This will be where all of our todos are stored behind the scenes.
+6. Jump back to the `Dashboard` tab. Scroll down, and you should see a field on the right-hand side labeled "MOBILE SERVICE URL". Copy this URL into a document for the time being. We will need it to connect to our Mobile Service later.
+7. Next, click the "Manage Keys" button on the bottom of the web browser, and copy your `Application Key` into a document to store until we need it. We will use it to authenticate our app with the mobile service (located at the URL from Step 6).
+8. We are done configuring our Mobile Service! Azure makes it so easy to add a backend to your application, there's really no reason not to. Now that we've configured our "backend", let's update our "frontend" (the todo app) to interact with the Mobile Service.
+---
+Back to Application
+
+1. The Microsoft Azure Team has made it really easy to interact with Mobile Services in C# by creating a client library. Instead of dealing with complex networking logic, all we have do is call a few methods - and boom! We have a backend for our application. This library is distributed via NuGet Package Manager, which we talked about a little earlier.
+2. To add the library to your project, right click the `Packages` folder in your `Todo` project, and select `Add Packages`. Tick the box at the bottom that says `Show pre-release packages` and enter "Azure Mobile Services" in the search box. Select the `Windows Azure Mobile Services` package, and click `Add Package`. We also need to add the Azure Mobile Services package to each platform project. To do so, repeat the steps listed above for the `Todo.iOS`, `Todo.Droid`, and `Todo.WinPhone` projects.
+3. Azure Mobile Services requires you to initialize their client library for each platform. To do so, visit `AppDelegate.cs`, `MainActivity.cs`, and `MainPage.xaml.cs` and add a call to `CurrentPlatform.Init` just above the Xamarin.Forms initialization logic. For example, your AppDelegate's `FinishedLaunching` method for iOS should look like this:
+
+```
+public override bool FinishedLaunching(UIApplication app, NSDictionary options)
+{
+	Microsoft.WindowsAzure.MobileServices.CurrentPlatform.Init ();
+
+	global::Xamarin.Forms.Forms.Init();
+	LoadApplication(new App());
+
+        return base.FinishedLaunching(app, options);
+}
+```
+
+4. Great, now we are all configured, and ready to start interacting with data from our Azure Mobile Service.
