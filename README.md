@@ -332,7 +332,7 @@ Being in college is tough. When you aren't working on a group project you waited
 4. In `TodoDetailPage.xaml.xs` update the constructor to have the following signature `public TodoDetailPage (TodoItem item)`. Why? When a user selects a cell, we want to pass our selected item along to the page.
 5. Remember how the binding context for `TodoPage` was a view model? It doesn't always have to be! In this case, we are binding to a single item, a `TodoItem`, so we can just set the `BindingContext = item` in the constructor of `TodoDetailPage`. We can use this binding in our actual page by adding a `Title` property to our `ContentPage` tag, and binding to the `TodoItem`'s name.
 
-`TodoDetailPage.xaml.cs`
+		TodoDetailPage.xaml.cs
 
 		using System;
 		using System.Collections.Generic;
@@ -352,7 +352,7 @@ Being in college is tough. When you aren't working on a group project you waited
 			}
 		}
 
-`TodoDetailPage.xaml`
+		TodoDetailPage.xaml
 
 		<?xml version="1.0" encoding="UTF-8"?>
 		<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="Todo.TodoDetailPage"
