@@ -608,12 +608,7 @@ namespace Todo
 {
 	public class MobileService
 	{
-		static MobileServiceClient client;
-
-		public MobileService ()
-		{
-			client = new MobileServiceClient ("https://tododemoapplication.azure-mobile.net/", "xRelREGxnCOaYeXKUpqxFDRZKADbaV37");
-		}
+		static MobileServiceClient client = new MobileServiceClient ("MOBILE_SERVICE_URL", "APPLICATION_KEY");
 
 		public static async Task<List<TodoItem>> GetTodosAsync ()
 		{
