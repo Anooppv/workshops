@@ -508,4 +508,133 @@ public override bool FinishedLaunching(UIApplication app, NSDictionary options)
 }
 ```
 
-4. Great, now we are all configured, and ready to start interacting with data from our Azure Mobile Service.
+4. Great, now we are all configured, and ready to start interacting with data from our Azure Mobile Service. Right-click the `Todo` project and select Add->New File. Select the `General` category from the left-hand side, followed by `Empty Class`. Name your empty class "MobileService". This will be the place where all of our Mobile Services logic resides. To be able to access all the APIs available with Mobile Services, add the following using statement to the top of the file `using Microsoft.WindowsAzure.MobileServices;`. Because we want our class to be statically available, make the class static by adding the word `static` immediately after the word `public` in both the class signature.
+5. Great! Everything in a mobile service revolves around a class called `MobileServiceClient`. This class handles all the complicated networking and behind-the-scenes logic for communicating with our backend, and gives us a nice, easy-to-use API. Let's initialize our `MobileServiceClient`. To do so, let's create a private field called "MobileService", and initialize it in our constructor. Remember that URL and application key from earlier? Well now is the time we are going to use them! To tell the `MobileServiceClient` class what Mobile Service to connect and authenticate with, let's pass in both the URL and the application key into the constructor of `MobileServiceClient`. It should look something like this:
+```
+using System;
+using Microsoft.WindowsAzure.MobileServices;
+
+namespace Todo
+{
+	public static class MobileService
+	{
+		static MobileServiceClient client;
+
+		public MobileService ()
+		{
+			client = new MobileServiceClient ("MOBILE_SERVICE_URL", "APPLICATION_KEY");
+		}
+	}
+}
+```
+6. Now that we have our `MobileServiceClient` initialized, it's time to interact with our data. First, we need the ability to retreive existing todos from the database. To do this, we are going to use the [async/await pattern](https://msdn.microsoft.com/en-us/library/hh191443.aspx) common in C#/.NET development. Why is it important that our app use asychronous patterns for fetching data from the Mobile Service. Well, remember from your classes that code executes sychronously, line-by-line. Whenever the runtime engine hits a line that takes longer, the entire program has to wait for that line to complete execution before moving along. This is especially bad for mobile apps, because your entire UI will freeze (while it waits for the sychronous call to complete), resutling in a horrible experience for users of your app. Asychronous programming allows your program to continue execution and return back to that particular statement (in our case, fetching data from our Mobile Service) when it completes. You may be familiar with threading or other techniques to accomplish asychronous operations in your apps. C# is an incredibly productive language, so it abstracts threads away from you. All you have to do is mark asychronous methods with the "async" modifier, and add the "await" keyword before asychronous calls.
+7. Let's give it a try! To get started, import `System.Threading.Tasks`. A task is representative of a long-running "task" that needs to complete, and is used alongside the async and await keywords. Additionally, import `System.Collections.Generic`. We are going to use the `List<T>` class from this namespace. Next, add a new method with the following signature:
+```
+public static async Task<List<TodoItem>> GetTodosAsync ()
+{
+
+}
+```
+
+8. Notice a few things. First, we added the "async" modifier to this method. This is required for any methods you want to use the "await" keyword with. Next, we are returning a Task<T>, which is just our long-running task of whatever T is. In this case type T is a `List<TodoItem>`.
+9. Next, let's actually grab data from our Mobile Service. To access a particular table, just use `client.GetTable<T> ()`. In our case, we are trying to access our `TodoItem` table, so to access our table the code would be `client.GetTable<TodoItem> ()`. Now that we have access to our table, we can call the `ToListAsync` method to grab all the data from the Mobile Service. Finally, because this is an "async" method, we need to add the "await" keyword before the method. Put it all together, and it should look like this:
+```
+public static async Task<List<TodoItem>> GetTodosAsync ()
+{
+	return await client.GetTable<TodoItem> ().ToListAsync ();
+}
+```
+10. Now that we can grab our todos, it's time to save them! Before we save them, we need to update our `TodoItem` model. Why? We need to help Azure map our properties in `TodoItem` to columns in the `TodoItem` table within our Mobile Service. Go ahead and add a new property (of type string) called "ID". Finally, we need to add that "mapping" between our properties and the columns in our Table. Import `Newtonsoft.Json` and add the following attribute to the top of each of your properties (with the name obviously changed to the name of the property) `[JsonProperty(PropertyName = "id")]`. It should look something like this when you are done:
+
+```
+using System;
+using System.ComponentModel;
+using Newtonsoft.Json;
+
+namespace Todo
+{
+	public class TodoItem : INotifyPropertyChanged
+	{
+		private string name;
+
+		[JsonProperty(PropertyName = "id")]
+		public string ID { get; set; }
+
+		[JsonProperty(PropertyName = "name")]
+		public string Name 
+		{ 
+			get { return name; }
+			set { name = value; NotifyPropertyChanged ("Name"); }
+		}
+
+		[JsonProperty(PropertyName = "description")]
+		public string Description { get; set; }
+
+		[JsonProperty(PropertyName = "done")]
+		public bool Done { get; set; }
+
+		public event PropertyChangedEventHandler PropertyChanged;
+		private void NotifyPropertyChanged(String info)
+		{
+			if (PropertyChanged != null)
+			{
+				PropertyChanged(this, new PropertyChangedEventArgs(info));
+			}
+		}
+	}
+}
+```
+
+10. Now that we can grab our model is setup for saving, let's add a method to save them! Because we won't be returning any data, we don't need to worry about using `Task<T>`, just `Task`. Regular 'ole `Task` is basically the asychronous version of "void", so it's not really a big deal. We will want to add a parameter for our `TodoItem` we will be saving, and finally our "async" modifier. Your method should now look like this:
+```
+public static async Task SaveTodoAsync (TodoItem item)
+{
+}
+```
+11. You may be asking... why did we add that "ID" property? Well, when we add new items to our table in Mobile Services, it will automatically be given an ID. This is important because we can diversify between items that have already been saved in our Mobile Service (and just need to be updated), and brand-new items (that aren't saved in the Mobile Service yet). With that in mind, let's add a conditional statement to see if the ID property is null (or an empty string). If it is, then it's a new item and needs to be added to our Mobile Service. If the ID property has a value, then that means it already exists in our Mobile Service, and all we need to do is update it.
+```
+public static async Task SaveTodoAsync (TodoItem item)
+{
+	if (item.ID == null | item.ID == string.Empty) {
+		// New item
+	} else {
+		// Update item
+	}
+}
+```
+12. Now all we need to do is call the Mobile Services methods for inserting and updating items. Remember, we need to fetch our table first, then we can access the `InsertAsync` and `UpdateAsync` methods. Because these are asychronous methods, we need to add the "await" keyword before the call. When you put it all together, your completed `MobileService` class should look like this:
+```
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.WindowsAzure.MobileServices;
+
+namespace Todo
+{
+	public static class MobileService
+	{
+		static MobileServiceClient client;
+
+		public MobileService ()
+		{
+			client = new MobileServiceClient ("https://tododemoapplication.azure-mobile.net/", "xRelREGxnCOaYeXKUpqxFDRZKADbaV37");
+		}
+
+		public static async Task<List<TodoItem>> GetTodosAsync ()
+		{
+			return await client.GetTable<TodoItem> ().ToListAsync ();
+		}
+
+		public static async Task SaveTodoAsync (TodoItem item)
+		{
+			if (item.ID == null | item.ID == string.Empty) {
+				await client.GetTable<TodoItem> ().InsertAsync (item);
+			} else {
+				await client.GetTable<TodoItem> ().UpdateAsync (item);
+			}
+		}
+	}
+}
+```
+
+13. 
