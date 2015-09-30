@@ -477,12 +477,8 @@ It's 2015. Your app needs a cloud! Lucky for you, it's very easy to add "some cl
 ---
 
 #### Setup your Backend
-
-----
-Mobile Services Setup
-* How to get an account (malte)
-
-----
+To complete this tutorial, you need the following:
+* An active Azure account. If you don't have an account, you can sign up for an Azure trial and get up to 10 free mobile services that you can keep using even after your trial ends. For details, see [Azure Free Trial](https://azure.microsoft.com/en-us/pricing/free-trial/).
 
 ---
 
