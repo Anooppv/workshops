@@ -450,6 +450,8 @@ Being in college is tough. When you aren't working on a group project you waited
 
 4. Compile and run the app again. Wow! Now we can make changes to the todo on the detail screen, and return to see our changes are still there. You may have noticed, if you update the title of the todo, it will also update the cell in the list view.
 
+---
+
 #### Add functionality for creating items
 
 1. One last step: we are missing a page to add new items. One easy way to do this is to add an "Add" button to our navigation bar, which will add a new todo to our list view that we can edit. Hop back over to `TodoPage.xaml.cs`. We can access what Xamarin.Forms calls the toolbar by using the `ToolbarItems` property on our `TodoPage`, and adding a new `ToolbarItem`. Add the following code to the constructor of the `TodoPage` class:
