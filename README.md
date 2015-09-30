@@ -162,11 +162,11 @@ Being in college is tough. When you aren't working on a group project you waited
 			<ContentPage.Content>
 				<StackLayout Padding="15, 20, 15, 20">
 					<Label Text="Title" />
-					<Entry Text="{Binding Name}" />
+					<Entry Text="Name" />
 					<Label Text="Description" />
-					<Entry Text="{Binding Description}" />
+					<Entry Text="Description" />
 					<Label Text="Done?" />
-					<Switch IsToggled="{Binding Done}" />
+					<Switch IsToggled="false" />
 				</StackLayout>
 			</ContentPage.Content>
 		</ContentPage>
@@ -422,11 +422,11 @@ Being in college is tough. When you aren't working on a group project you waited
 			<ContentPage.Content>
 				<StackLayout Padding="15, 20, 15, 20">
 					<Label Text="Title" />
-					<Entry Text="{Binding Name}" />
+					<Entry Text="Name" />
 					<Label Text="Description" />
-					<Entry Text="{Binding Description}" />
+					<Entry Text="Description" />
 					<Label Text="Done?" />
-					<Switch IsToggled="{Binding Done}" />
+					<Switch IsToggled="false" />
 				</StackLayout>
 			</ContentPage.Content>
 		</ContentPage>
@@ -448,40 +448,7 @@ Being in college is tough. When you aren't working on a group project you waited
 			</ContentPage.Content>
 		</ContentPage>
 
-4. Compile and run the app again. Wow! Now we can make changes to the todo on the detail screen, and return to see our changes are still there. However, you may have noticed, if you update the title of the todo, it doesn't update on the list view. This is because nothing is notifying the list view that the `TodoItem` has changed. Fixing this is easy! All we have do is implement an interface called `INotifyPropertyChanged`, which will let our UI know about changes to the `TodoItem`. Copy the `TodoItem` implementation below back into your `TodoItem` class.
-
-		using System;
-		using System.ComponentModel;
-
-		namespace Todo
-		{
-			public class TodoItem : INotifyPropertyChanged
-			{
-				private string name;
-
-				public string Name 
-				{ 
-					get { return name; }
-					set { name = value; NotifyPropertyChanged ("Name"); }
-				}
-				public string Description { get; set; }
-				public bool Done { get; set; }
-
-				public event PropertyChangedEventHandler PropertyChanged;
-
-				private void NotifyPropertyChanged(String info)
-				{
-					if (PropertyChanged != null)
-					{
-						PropertyChanged(this, new PropertyChangedEventArgs(info));
-					}
-				}
-			}
-		}
-
-5. If you run the compile and app again, you should see that the title now updates when it is changed on the `TodoDetailPage`. 
-
----
+4. Compile and run the app again. Wow! Now we can make changes to the todo on the detail screen, and return to see our changes are still there. You may have noticed, if you update the title of the todo, it will also update the cell in the list view.
 
 #### Add functionality for creating items
 
