@@ -85,7 +85,7 @@ Being in college is tough. When you aren't working on a group project you waited
 
 ---
 
-#### Add a Navigation Bar and setup Detail Page
+#### Add a Navigation Bar and Setup Detail Page
 
 1. Now it's time to take our todo app and make it a multi-page app. When a user taps on a todo item in the list, we want to open a new page that contains the item with the name, description, and if the task is done or not. This is called push-pop navigation, as a new page is pushed onto the screen, and then poped off. (Technically, it's pushing/popping off the navigation stack, but you get the point.)
 2. Hop back to `App.cs`. Let's update our `MainPage` property so that we can handle this type of navigation. This will also add a navigation bar, so we will style that a bit as well.
@@ -248,28 +248,40 @@ Being in college is tough. When you aren't working on a group project you waited
 ### Walkthrough #1b - Building a Todo App
 Being in college is tough. When you aren't working on a group project you waited *way* too long to get started on, you are probably cramming for a test or skipping class. Naturally, it's easy to lose track of your assignments. Today, you are going to build your first mobile app for iOS, Android, and Windows Phone - a simple todo app - to solve your problem.
 
+---
+
+#### Project Setup and Architecture
+
 1. Open the solution (inside a folder called `Todo - Start Here`) using either Xamarin Studio or Visual Studio.
 2. There are four projects inside the solution: `Todo`, `Todo.iOS`, `Todo.Droid`, and `Todo.WinPhone`. Remember, Xamarin.Forms allows you to build native UIs for iOS, Android, and Windows Phone from a single, shared codebase. The `Todo` project is a library called a PCL - or Portable Class Library. All the code we write here will be shared between iOS, Android, and Windows Phone.
 3. Expand the `Todo.iOS`, `Todo.Droid`, and `Todo.WinPhone` projects. We won't have to work with these today, but if you wanted to add functionality to your app that requires APIs that are platform-specific, you would make those changes here.
 4. Back to our `Todo` project. Open the `App.cs` file. This is the entry point for our Xamarin.Forms application. We can manage important app lifecycle events here, such as the app resuming, starting up, or sleeping. The most important thing is to define a `MainPage`, which will be the first page users see when they launch your app.
 5. Notice that there are a few additional folders within the `Todo` project, called `Models`, `View Models`, and `Views`. These terms come from the [MVVM architectural pattern](https://en.wikipedia.org/wiki/Model_View_ViewModel). You don't need to know too much about MVVM, aside from the fact it helps to architect your applications in a scalable and decoupled manner. `Views` are simply the visual objects you see when you launch an app. `View Models` add behavior to `Views`. Finally, `Models` are just representations of something we are trying to abstract, like a todo item.
 6. Go ahead and compile and run your app. We are going to transform this into a functional todo app to keep up with all the assignments we have to complete for class.
-6. Back to Xamarin.Forms! We want the UI for the todo app to be simple - really simple. When users launch the app, there should be a list of all incomplete todos. You should be able to click each todo to get more information. Finally, we need an easy way to add new todos. Let's add a page to show a list of all outstanding todos. Right-click the `Views` folder. Click Add->New File. Select the `Forms` category on the left-hand side. Create a new `Forms ContentPage XAML` and name it "TodoPage". This creates a new page that uses XAML markup to define UIs.
-7. After the page is added, you will see that there are two files: a `TodoPage.xaml` file and a `Todo.xaml.cs` file. `TodoPage.xaml` is where we will describe our UI using XAML markup. `TodoPage.xaml.cs` is called a codebehind, and is just a place where we can add functionality to our views (if we don't do so in our view model).
-8. Open up `TodoPage.xaml` and add a new ListView under `<ContentPage.Content>`. A list view is just a list of items, and is in almost every mobile app you've ever used, if you know where to look. Here is what your `TodoPage.xaml` code should look like:
 
-```
-<?xml version="1.0" encoding="UTF-8"?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="Todo.TodoPage">
-	<ContentPage.Content>
-		<ListView>
-		</ListView>
-	</ContentPage.Content>
-</ContentPage>
-```
+---
 
-9. Remember, nobody will see this page if we don't let our application know that this is the main page. Jump back to `App.cs` and set the `MainPage` property to an instance of the page we just created, or `MainPage = new TodoPage ();`.
-10. Compile and run the app, and you should now see a list view when the app launches.
+#### Create the Main Page
+
+1. Back to Xamarin.Forms! We want the UI for the todo app to be simple - really simple. When users launch the app, there should be a list of all incomplete todos. You should be able to click each todo to get more information. Finally, we need an easy way to add new todos. Let's add a page to show a list of all outstanding todos. Right-click the `Views` folder. Click Add->New File. Select the `Forms` category on the left-hand side. Create a new `Forms ContentPage XAML` and name it "TodoPage". This creates a new page that uses XAML markup to define UIs.
+2. After the page is added, you will see that there are two files: a `TodoPage.xaml` file and a `Todo.xaml.cs` file. `TodoPage.xaml` is where we will describe our UI using XAML markup. `TodoPage.xaml.cs` is called a codebehind, and is just a place where we can add functionality to our views (if we don't do so in our view model).
+3. Open up `TodoPage.xaml` and add a new ListView under `<ContentPage.Content>`. A list view is just a list of items, and is in almost every mobile app you've ever used, if you know where to look. Here is what your `TodoPage.xaml` code should look like:
+
+		<?xml version="1.0" encoding="UTF-8"?>
+		<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="Todo.TodoPage">
+			<ContentPage.Content>
+				<ListView>
+				</ListView>
+			</ContentPage.Content>
+		</ContentPage>
+
+4. Remember, nobody will see this page if we don't let our application know that this is the main page. Jump back to `App.cs` and set the `MainPage` property to an instance of the page we just created, or `MainPage = new TodoPage ();`.
+5. Compile and run the app, and you should now see a list view when the app launches.
+
+---
+
+#### Populate the ListView
+
 11. Time to add some data to our list view! Remember, a page's behavior should come from a view model, not the page itself? For every page, we should create a new view model that adds behavior to the visual elements on the page. For your conveienence, you we have gone ahead and added the view model (`TodoViewModel`) for you. Also, if you go check out the `Models` folder, specifically `TodoItem.cs`, you will see that we have a "model" representation of a todo item, including a name, description, and something to let us know if the todo was completed.
 12. Open back up `TodoViewModel.cs`. Our list view needs data to operate on; we can add this data by creating a list of todo items and connecting that to our list view. You can see that we created a new `ObservableCollection<TodoItem>` property called `Todos`, which is basically just a List<T>, except with support for MVVM. In the constructor, we went ahead and provided some dummy starting data to populate our app on launch.
 13. Remember how our view model is supposed to help out our view by supplying data and behavior? How do they share data? MVVM came up with a concept of data binding, which basically means that a view's property is "bound" to a property of our view model. Whenever the property changes (via view model), the view will update to reflect the changes. This is why we had to use an `ObservableCollection<T>`, rather than just a regular list. `ObservableCollection` is a special class made for data binding that will automatically alert our view that data has changed, and that the view needs to update. Now that we have bindings defined on the view model end, we need to update our view to handle this.
@@ -304,6 +316,11 @@ Being in college is tough. When you aren't working on a group project you waited
 </ContentPage>
 ```
 17. Compile and run your app. You should see your todo items in the list view!
+
+--- 
+
+#### Add a Navigation Bar and Setup Detail Page
+
 18. Now it's time to take our todo app and make it a multi-page app. When a user taps on a todo item in the list, we want to open a new page that contains the item with the name, description, and if the task is done or not. This is called push-pop navigation, as a new page is pushed onto the screen, and then poped off. (Technically, it's pushing/popping off the navigation stack, but you get the point.)
 19. Hop back to `App.cs`. Let's update our `MainPage` property so that we can handle this type of navigation. This will also add a navigation bar, so we will style that a bit as well.
 ```
@@ -395,6 +412,11 @@ namespace Todo
 }
 ```
 26. Compile and run! Tap a cell in the list view... and boom! You should navigate to a new page with the title of the item that you just selected. Awesome! Now it's time to update our detail view so people can edit and view their todos in more detail.
+
+---
+
+#### Finish Detail Page
+
 27. Jump back to `TodoDetailPage.xaml`. Let's add some visual elements. First, let's create a `StackLayout`, which is a managed layout. All we will have to do is define the order of controls, and the `StackLayout` will handle the rest for us.
 28. Inside the `StackLayout`, let's add a few labels, two `Entry`s (for editing the title and description) and a `Switch` (for toggling the state of task). At this point, your XAML will look something like this:
 ```
@@ -463,7 +485,13 @@ namespace Todo
 }
 ```
 
-31. If you run the compile and app again, you should see that the title now updates when it is changed on the `TodoDetailPage`. One last step: we are missing a page to add new items. One easy way to do this is to add an "Add" button to our navigation bar, which will add a new todo to our list view that we can edit. Hop back over to `TodoPage.xaml.cs`. We can access what Xamarin.Forms calls the toolbar by using the `ToolbarItems` property on our `TodoPage`, and adding a new `ToolbarItem`. Add the following code to the constructor of the `TodoPage` class:
+31. If you run the compile and app again, you should see that the title now updates when it is changed on the `TodoDetailPage`. 
+
+---
+
+#### Add functionality for creating items
+
+1. One last step: we are missing a page to add new items. One easy way to do this is to add an "Add" button to our navigation bar, which will add a new todo to our list view that we can edit. Hop back over to `TodoPage.xaml.cs`. We can access what Xamarin.Forms calls the toolbar by using the `ToolbarItems` property on our `TodoPage`, and adding a new `ToolbarItem`. Add the following code to the constructor of the `TodoPage` class:
 ```
 ToolbarItems.Add (new ToolbarItem ("Add", null, async () => {
 	// This is where we define actions that will happen when the "Add" button is tapped.
