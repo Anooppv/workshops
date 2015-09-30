@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
+using Microsoft.WindowsAzure.MobileServices;
 
 namespace Todo.WinPhone
 {
@@ -16,6 +17,8 @@ namespace Todo.WinPhone
         {
             InitializeComponent();
             SupportedOrientations = SupportedPageOrientation.PortraitOrLandscape;
+
+            //CurrentPlatform.Init();
 
             global::Xamarin.Forms.Forms.Init();
             LoadApplication(new Todo.App());
